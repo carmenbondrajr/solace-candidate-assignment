@@ -21,6 +21,7 @@ debugger;
       ilike(advocates.city, `%${query}%`),
       eq(advocates.degree, query),
       sql`${advocates.specialties}::TEXT ILIKE ${`%${query}%`}`, // Cast JSONB to text for fuzzy match
+      // eq(advocates.phoneNumber, query), // TODO Uncomment once phone number migrated to string
     ];
 
     if (parseInt(query)) {

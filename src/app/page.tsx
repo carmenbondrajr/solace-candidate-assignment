@@ -1,49 +1,48 @@
 "use client";
 
-import {ChangeEvent, useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Advocate} from "@/app/types";
 import {Table, TableBody, TableCell, TableColumn, TableHeader, TableRow} from "@nextui-org/table";
 import {Input} from "@nextui-org/input";
 import {Button} from "@nextui-org/button";
+import {useDebounceValue} from "usehooks-ts";
+import {Spinner} from "@nextui-org/spinner";
 
 export default function Home() {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
+  const [queryParam, setQueryParam] = useDebounceValue<string>('', 500);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const getAdvocates = (searchTerm: string) => {
-      setLoading(true);
-      fetch(`/api/advocates?query=${encodeURIComponent(searchTerm)}`).then((response) => {
-        if (response.status === 200) {
-          response.json().then((jsonResponse) => {
-            setAdvocates(jsonResponse.data);
-          });
-        } else {
-          console.log({response})
-        }
+  const getAdvocates = () => {
+    console.log(queryParam ? `Fetching advocates: ${queryParam}` : "Fetching all advocates");
+    setLoading(true);
+    fetch(`/api/advocates?query=${encodeURIComponent(queryParam)}`).then((response) => {
+      response.json().then((data) => {
+        setAdvocates(data);
+        // Fake loading time for demo purposes
+        setTimeout(() => {setLoading(false);}, 500);
       });
+    });
   };
 
   useEffect(() => {
-    console.log("fetching advocates...");
-    getAdvocates('');
-  });
+    getAdvocates();
+  }, [queryParam]);
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = e.target.value.toLowerCase();
+  const handleReset = () => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
 
-    console.log(searchTerm);
-    console.log("filtering advocates...");
-    getAdvocates(searchTerm);
-  };
-
-  const resetSearch = () => {
-    setAdvocates([]);
+    setQueryParam('');
   };
 
 
   const renderAdvocates = () => {
     return advocates.map((advocate: Advocate) =>
-      <TableRow aria-label="advocate-search-table" key={advocate.phoneNumber}>
+      <TableRow aria-label={`advocate-search-row-${advocate.phoneNumber}}`} key={advocate.phoneNumber}>
         <TableCell>{advocate.firstName}</TableCell>
         <TableCell>{advocate.lastName}</TableCell>
         <TableCell>{advocate.city}</TableCell>
@@ -60,21 +59,23 @@ export default function Home() {
   };
 
   return (
-    <main style={{ margin: "24px" }}>
+    <main style={{margin: "24px"}}>
       <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <h3>Search</h3>
-        <p>
-          Searching for: <span id="search-term"></span>
-        </p>
-        <Input onChange={(e) => handleSearch(e)} />
-        <Button onPress={resetSearch}>Reset Search</Button>
+      <br/>
+      <br/>
+      <div className="flex items-center space-x-4">
+        <h3><strong>Search</strong></h3>
+        <Input ref={inputRef} onChange={e => setQueryParam(e.target.value)} />
+        <Button onPress={handleReset}>Reset Search</Button>
       </div>
-      <br />
-      <br />
-      <Table>
+      <br/>
+      {queryParam && (
+        <p>
+          Searching for: <span id="search-term">{queryParam}</span>
+        </p>
+      )}
+      <br/>
+      <Table aria-label="advocate-search-table">
         <TableHeader>
           <TableColumn>First Name</TableColumn>
           <TableColumn>Last Name</TableColumn>
@@ -84,7 +85,10 @@ export default function Home() {
           <TableColumn>Years of Experience</TableColumn>
           <TableColumn>Phone Number</TableColumn>
         </TableHeader>
-        <TableBody>
+        <TableBody
+          isLoading={loading}
+          loadingContent={<Spinner label="Loading..." />}
+        >
           {renderAdvocates()}
         </TableBody>
       </Table>
