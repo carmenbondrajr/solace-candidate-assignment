@@ -12,7 +12,13 @@
     "seed": "node --loader esbuild-register/loader -r esbuild-register ./src/db/seed/index.ts"
   },
   "dependencies": {
+    "@nextui-org/button": "^2.2.7",
+    "@nextui-org/input": "^2.4.6",
+    "@nextui-org/system": "^2.4.4",
+    "@nextui-org/table": "^2.2.6",
+    "@nextui-org/theme": "^2.4.3",
     "drizzle-orm": "^0.32.1",
+    "framer-motion": "^11.15.0",
     "next": "^14.2.19",
     "postgres": "^3.4.4",
     "react": "^18.3.1",

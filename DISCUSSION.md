@@ -1,0 +1,1 @@
+- I'd like to update the README to provide more accurate instructions on getting the DB setup and running
