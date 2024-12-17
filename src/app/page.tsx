@@ -75,7 +75,7 @@ export default function Home() {
         </p>
       )}
       <br/>
-      <Table aria-label="advocate-search-table">
+      <Table aria-label="advocate-search-table" isStriped={true}>
         <TableHeader>
           <TableColumn>First Name</TableColumn>
           <TableColumn>Last Name</TableColumn>
