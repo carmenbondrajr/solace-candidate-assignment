@@ -10,7 +10,6 @@ export async function GET(request: Request) {
   const query = url.searchParams.get('query') || '';
 
   let searchResults: Advocate[];
-debugger;
   if (!process.env.DATABASE_URL) {
     searchResults = filterMockAdvocates(query);
   } else {
